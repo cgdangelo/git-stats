@@ -1,3 +1,5 @@
+%h1 Select a branch
+
 %ul
   %li{ "ng-repeat" => "branch in branches" }
-    {{ branch }}
+    %a{ :href => "#/branches/{{branch}}" } {{branch}}
