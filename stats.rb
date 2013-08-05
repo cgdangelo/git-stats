@@ -5,6 +5,7 @@ require 'coffee-script'
 require 'yaml'
 require 'haml'
 require 'git'
+require 'compass'
 
 config = YAML.load File.open("config.yml")
 git = Git.open config['repository']['path']
@@ -15,6 +16,10 @@ end
 
 get '/js/app/stats.js' do
   coffee :stats, :bare => true
+end
+
+get '/css/stats.css' do
+  sass :stats
 end
 
 get '/branches/info.html' do
