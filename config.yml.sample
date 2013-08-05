@@ -1,0 +1,3 @@
+repository:
+  path: "/path/to/repository"
+  branch: develop
