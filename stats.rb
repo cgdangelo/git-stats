@@ -17,6 +17,14 @@ get '/js/app/stats.js' do
   coffee :stats, :bare => true
 end
 
+get '/branches/info.html' do
+  haml :"branches/info"
+end
+
+get '/branches/list.html' do
+  haml :"branches/list"
+end
+
 get '/branches' do
   branches = []
   git.branches.local.each do |branch|
@@ -28,8 +36,12 @@ end
 
 get '/branches/:branch' do
   commits = []
-  git.branches[:branch].commits.each do |commit|
-    commits << { :sha => commit.sha, :author => commit.author, :message => commit.message }
+  git.gtree(params[:branch]).log.each do |commit|
+    commits << {
+      :sha => commit.sha[0, 7],
+      :author => { :name => commit.author.name, :email => commit.author.email },
+      :message => commit.message
+    }
   end
 
   json commits
@@ -37,13 +49,5 @@ end
 
 get '/js/app/branches.js' do
   coffee :"branches/branches", :bare => true
-end
-
-get '/branches/info.html' do
-  haml :"branches/list"
-end
-
-get '/branches/list.html' do
-  haml :"branches/list"
 end
 

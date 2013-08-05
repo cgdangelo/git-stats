@@ -1,0 +1,9 @@
+%h1 Commits
+%ul
+  %li{ "ng-repeat" => "commit in commits" }
+    %article
+      %dl
+        %dt
+          %strong {{commit.sha}}
+          %a{ :href => "mailto:{{commit.author.email}}", :rel => "author" } {{commit.author.name}}
+        %dd {{commit.message}}
