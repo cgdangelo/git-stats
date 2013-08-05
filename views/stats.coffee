@@ -3,5 +3,7 @@ app = angular.module('stats', []).
     $routeProvider
       .when '/branches',
         controller: BranchListCtrl, templateUrl: '/branches/list.html'
+      .when '/branches/:branch',
+        controller: BranchInfoCtrl, templateUrl: '/branches/info.html'
       .otherwise
         redirectTo: '/branches'
