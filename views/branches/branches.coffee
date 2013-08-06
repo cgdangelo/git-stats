@@ -63,6 +63,36 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
 
     svg.append('path').attr('d', commitLine(commitData))
 
+    tooltip = svg.append('text')
+        .attr('class', 'tooltip')
+        .attr('font-weight', 'bold')
+        .attr('dy', 14)
+
+    svg.selectAll('path').data(commitData).enter()
+      .append('circle')
+        .attr('fill', 'white')
+        .attr('stroke', 'black')
+        .attr('r', 5)
+        .attr('cx', (d) -> x(parseDate.parse(d.key)))
+        .attr('cy', (d) -> y(d.values.length))
+        .on('mouseover', (d) ->
+          d3.select(this).transition()
+            .duration(300)
+            .attr('r', 8)
+            .attr('fill', 'black')
+            .attr('stroke', 'black')
+
+          tooltip.text(d.key + ': ' + d.values.length + ' commits')
+        )
+
+        .on('mouseout', ->
+          d3.select(this).transition()
+            .duration(300)
+            .attr('r', 5)
+            .attr('fill', 'white')
+            .attr('stroke', 'black')
+        )
+
     svg.append('g')
       .attr('class', 'axis')
       .attr('transform', 'translate(0, ' + (dimensions.height + 10) + ')')
