@@ -40,10 +40,15 @@ get '/branches' do
 end
 
 get '/branches/:branch' do
+  if !git.branch(params[:branch]).current
+    git.checkout git.branch(params[:branch])
+  end
+
   commits = []
-  git.gtree(params[:branch]).log.each do |commit|
+  git.log(999999).each do |commit|
     commits << {
       :sha => commit.sha[0, 7],
+      :date => commit.date,
       :author => { :name => commit.author.name, :email => commit.author.email },
       :message => commit.message
     }
