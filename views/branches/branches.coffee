@@ -9,9 +9,10 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
     .success (data, status) ->
       $scope.status = status
       $scope.commits = data
-      $scope.visualizeCommits()
+      $scope.visualizeCommitsDaily()
+      $scope.visualizeDayOfWeekDistribution()
 
-  $scope.visualizeCommits = ->
+  $scope.visualizeCommitsDaily = ->
     dimensions =
       width: 600
       height: 300
@@ -102,3 +103,48 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
       .attr('class', 'axis')
       .attr('transform', 'translate(-10,0)')
       .call(yAxis)
+
+  $scope.visualizeDayOfWeekDistribution = ->
+    dimensions =
+      width: 600
+      height: 300
+
+      margins:
+        top: 10
+        right: 10
+        bottom: 40
+        left: 50
+
+      pie:
+        radius: 100
+
+    parseDate = d3.time.format('%A')
+    color = d3.scale.category20c()
+
+    commitData = d3.nest()
+      .key((d) ->
+        return parseDate(new Date(d.date))
+      )
+      .sortKeys(d3.ascending)
+      .entries($scope.commits)
+
+    pie = d3.layout.pie().value((d) -> d.values.length)
+
+    svg = d3.select('.d3.dow')
+      .append('svg:svg')
+        .data([commitData])
+        .attr('width', dimensions.width + dimensions.margins.left + dimensions.margins.right)
+        .attr('height', dimensions.height + dimensions.margins.top + dimensions.margins.bottom)
+      .append('g')
+        .attr('transform', 'translate(' + dimensions.margins.left + ', ' + dimensions.margins.top + ')')
+
+    arc = d3.svg.arc().outerRadius(dimensions.pie.radius)
+
+    slices = svg.selectAll('g.slice').data(pie).enter()
+      .append('g')
+        .attr('class', 'slice')
+        .attr('transform', 'translate(300,150)')
+
+    slices.append('path')
+      .attr('fill', (d, i) -> color(i))
+      .attr('d', arc)
