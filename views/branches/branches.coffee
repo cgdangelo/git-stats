@@ -116,7 +116,7 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
         left: 50
 
       pie:
-        radius: 100
+        radius: 150
 
     parseDate = d3.time.format('%A')
     color = d3.scale.category20c()
@@ -138,7 +138,9 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
       .append('g')
         .attr('transform', 'translate(' + dimensions.margins.left + ', ' + dimensions.margins.top + ')')
 
-    arc = d3.svg.arc().outerRadius(dimensions.pie.radius)
+    arc = d3.svg.arc()
+        .outerRadius(dimensions.pie.radius)
+        .innerRadius(0)
 
     slices = svg.selectAll('g.slice').data(pie).enter()
       .append('g')
@@ -148,3 +150,10 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
     slices.append('path')
       .attr('fill', (d, i) -> color(i))
       .attr('d', arc)
+
+    slices.append('text')
+      .attr('transform', (d, i) ->
+        'translate(' + arc.outerRadius(dimensions.pie.radius + 25).centroid(d) + ')'
+      )
+      .attr('text-anchor', 'middle')
+      .text((d) -> d.data.key)
