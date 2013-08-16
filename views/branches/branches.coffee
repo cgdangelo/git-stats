@@ -11,6 +11,7 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
       $scope.commits = data
       $scope.visualizeCommitsDaily()
       $scope.visualizeDayOfWeekDistribution()
+      $scope.visualizeAuthors()
 
   $scope.visualizeCommitsDaily = ->
     dimensions =
@@ -34,7 +35,7 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
 
     commitData = d3.nest()
       .key((d) ->
-        return parseDate(new Date(d.date))
+        parseDate(new Date(d.date))
       )
       .sortKeys(d3.ascending)
       .entries($scope.commits)
@@ -123,7 +124,7 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
 
     commitData = d3.nest()
       .key((d) ->
-        return parseDate(new Date(d.date))
+        parseDate(new Date(d.date))
       )
       .sortKeys(d3.ascending)
       .entries($scope.commits)
@@ -157,3 +158,67 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
       )
       .attr('text-anchor', 'middle')
       .text((d) -> d.data.key)
+
+  $scope.visualizeAuthors = ->
+    dimensions =
+      width: 600
+      height: 300
+
+      margins:
+        top: 10
+        right: 10
+        bottom: 40
+        left: 50
+
+    parseDate = d3.time.format('%Y-%m-%d')
+
+    svg = d3.select('.d3.authors')
+      .append('svg:svg')
+        .attr('width', dimensions.width + dimensions.margins.left + dimensions.margins.right)
+        .attr('height', dimensions.height + dimensions.margins.top + dimensions.margins.bottom)
+      .append('g')
+        .attr('transform', 'translate(' + dimensions.margins.left + ', ' + dimensions.margins.top + ')')
+
+    commitData = d3.nest()
+      .key((d) ->
+          d.author.name
+      )
+      .sortKeys(d3.ascending)
+      .entries($scope.commits)
+
+    x = d3.scale.linear()
+        .domain(d3.extent(commitData, (d) -> d.values.length))
+        .range([0, dimensions.width])
+
+    xAxis = d3.svg.axis()
+      .scale(x)
+      .orient('bottom')
+
+    y = d3.scale.ordinal()
+        .domain(commitData.map((d) -> d.key))
+        .rangeRoundBands([dimensions.margins.top, dimensions.height])
+
+    yAxis = d3.svg.axis()
+      .scale(y)
+      .orient('left')
+
+    svg.selectAll('rect')
+        .data(commitData)
+        .enter()
+            .append('rect')
+            .attr('x', (d3.max(commitData, (d) -> d.key.length) * 3) + 10)
+            .attr('y', (d, i) -> y(d.key) + 30 + dimensions.margins.top)
+            .attr('width', (d) -> x(d.values.length))
+            .attr('height', '15px')
+            .attr('fill', 'steelblue')
+
+    svg.append('g')
+      .attr('class', 'axis')
+      .attr('transform', 'translate(' + ((d3.max(commitData, (d) -> d.key.length) * 3) + 10) + ',' + (dimensions.height + 10) + ')')
+      #.attr('transform', 'translate(' + (d3.max(commitData, (d) -> d.key.length) * 3) + 10 + ',' + (dimensions.height + 10) + ')')
+      .call(xAxis)
+
+    svg.append('g')
+      .attr('class', 'axis')
+      .attr('transform', 'translate(' + (d3.max(commitData, (d) -> d.key.length) * 3) + ',0)')
+      .call(yAxis)
