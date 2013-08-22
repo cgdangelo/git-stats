@@ -194,7 +194,7 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
 
     x = d3.scale.linear()
         .domain(d3.extent(commitData, (d) -> d.values.length))
-        .range([0, dimensions.width])
+        .range([0, dimensions.width - 150])
 
     xAxis = d3.svg.axis()
       .scale(x)
@@ -208,15 +208,24 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
       .scale(y)
       .orient('left')
 
-    svg.selectAll('rect')
-        .data(commitData)
-        .enter()
-            .append('rect')
-            .attr('x', (d3.max(commitData, (d) -> d.key.length) * 3) + 10)
-            .attr('y', (d, i) -> y(d.key) + 20 + dimensions.margins.top)
-            .attr('width', (d) -> x(d.values.length))
-            .attr('height', '15px')
-            .attr('fill', 'steelblue')
+    bars = svg.selectAll('g.bar').data(commitData).enter()
+      .append('g')
+        .attr('class', 'bar')
+
+    bars.append('rect')
+      .attr('x', (d3.max(commitData, (d) -> d.key.length) * 3) + 10)
+      .attr('y', (d, i) -> y(d.key) + 20 + dimensions.margins.top)
+      .attr('width', (d) -> x(d.values.length))
+      .attr('height', '15px')
+      .attr('fill', 'steelblue')
+
+    bars.append('text')
+      .text((d) ->
+        d.values.length
+      )
+      .attr('text-anchor', 'start')
+      .attr('x', (d) -> x(d.values.length) + dimensions.margins.left + 15)
+      .attr('y', (d) -> y(d.key) + 20 + dimensions.margins.top + 13)
 
     svg.append('g')
       .attr('class', 'axis')
