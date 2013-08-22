@@ -183,8 +183,14 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
       .key((d) ->
           d.author.name
       )
-      .sortKeys(d3.ascending)
       .entries($scope.commits)
+      .sort((a, b) ->
+        if a.values.length > b.values.length
+          -1
+        else if a.values.length < b.values.length
+          1
+        else 0
+    )
 
     x = d3.scale.linear()
         .domain(d3.extent(commitData, (d) -> d.values.length))
