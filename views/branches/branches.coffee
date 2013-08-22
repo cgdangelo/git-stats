@@ -65,35 +65,62 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
 
     svg.append('path').attr('d', commitLine(commitData))
 
-    tooltip = svg.append('text')
-        .attr('class', 'tooltip')
-        .attr('font-weight', 'bold')
-        .attr('dy', 14)
-
-    svg.selectAll('path').data(commitData).enter()
-      .append('circle')
-        .attr('fill', 'white')
-        .attr('stroke', 'black')
-        .attr('r', 5)
-        .attr('cx', (d) -> x(parseDate.parse(d.key)))
-        .attr('cy', (d) -> y(d.values.length))
+    blobs = svg.selectAll('path').data(commitData).enter()
+      .append('g')
+        .attr('class', 'blob')
         .on('mouseover', (d) ->
-          d3.select(this).transition()
+          svg.selectAll('circle, path').transition()
             .duration(300)
-            .attr('r', 8)
-            .attr('fill', 'black')
+            .style('opacity', '0.25')
+
+          d3.select(this).select('text').transition()
+            .duration(300)
+            .style('opacity', '1')
+
+          d3.select(this).select('circle').transition()
+            .duration(300)
+            .attr('opacity', '1')
+            .attr('r', 10)
+            .attr('fill', 'steelblue')
             .attr('stroke', 'black')
-
-          tooltip.text(d.key + ': ' + d.values.length + ' commits')
         )
-
         .on('mouseout', ->
-          d3.select(this).transition()
+          svg.selectAll('circle, path').transition()
+            .duration(300)
+            .style('opacity', '1')
+
+          d3.select(this).select('text').transition()
+            .duration(300)
+            .style('opacity', '0')
+
+          d3.select(this).select('circle').transition()
             .duration(300)
             .attr('r', 5)
             .attr('fill', 'white')
             .attr('stroke', 'black')
         )
+
+    blobs.append('circle')
+      .attr('fill', 'white')
+      .attr('stroke', 'black')
+      .attr('r', 5)
+      .attr('cx', (d) -> x(parseDate.parse(d.key)))
+      .attr('cy', (d) -> y(d.values.length))
+
+    blobs.append('text')
+      .text((d) -> d.values.length)
+      .style('opacity', '0')
+      .attr('class', 'tooltip')
+      .attr('text-anchor', 'middle')
+      .attr('x', (d) -> x(parseDate.parse(d.key)))
+      .attr('y', (d) -> y(d.values.length))
+      .attr('dx', -2)
+      .attr('dy', '-15')
+
+    tooltip = svg.append('text')
+        .attr('class', 'tooltip')
+        .attr('font-weight', 'bold')
+        .attr('dy', 14)
 
     svg.append('g')
       .attr('class', 'axis')
