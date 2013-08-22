@@ -213,7 +213,7 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
         .enter()
             .append('rect')
             .attr('x', (d3.max(commitData, (d) -> d.key.length) * 3) + 10)
-            .attr('y', (d, i) -> y(d.key) + 30 + dimensions.margins.top)
+            .attr('y', (d, i) -> y(d.key) + 20 + dimensions.margins.top)
             .attr('width', (d) -> x(d.values.length))
             .attr('height', '15px')
             .attr('fill', 'steelblue')
@@ -221,7 +221,6 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
     svg.append('g')
       .attr('class', 'axis')
       .attr('transform', 'translate(' + ((d3.max(commitData, (d) -> d.key.length) * 3) + 10) + ',' + (dimensions.height + 10) + ')')
-      #.attr('transform', 'translate(' + (d3.max(commitData, (d) -> d.key.length) * 3) + 10 + ',' + (dimensions.height + 10) + ')')
       .call(xAxis)
 
     svg.append('g')
