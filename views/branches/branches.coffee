@@ -13,36 +13,38 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
       $scope.visualizeDayOfWeekDistribution()
       $scope.visualizeAuthors()
 
-  $scope.visualizeCommitsDaily = ->
-    dimensions =
-      width: 600
-      height: 300
+  $scope.svgDimensions =
+    width: 600
+    height: 300
 
-      margins:
-        top: 10
-        right: 10
-        bottom: 40
-        left: 50
+    margins:
+      top: 10
+      right: 10
+      bottom: 40
+      left: 50
 
-    parseDate = d3.time.format('%Y-%m-%d')
-
-    svg = d3.select('.d3.daily')
-      .append('svg:svg')
-        .attr('width', dimensions.width + dimensions.margins.left + dimensions.margins.right)
-        .attr('height', dimensions.height + dimensions.margins.top + dimensions.margins.bottom)
-      .append('g')
-        .attr('transform', 'translate(' + dimensions.margins.left + ', ' + dimensions.margins.top + ')')
-
-    commitData = d3.nest()
+  $scope.groupByDate = (data, format) ->
+    d3.nest()
       .key((d) ->
-        parseDate(new Date(d.date))
+        format(new Date(d.date))
       )
       .sortKeys(d3.ascending)
-      .entries($scope.commits)
+      .entries(data)
+
+  $scope.visualizeCommitsDaily = ->
+    svg = d3.select('.d3.daily')
+      .append('svg:svg')
+        .attr('width', $scope.svgDimensions.width + $scope.svgDimensions.margins.left + $scope.svgDimensions.margins.right)
+        .attr('height', $scope.svgDimensions.height + $scope.svgDimensions.margins.top + $scope.svgDimensions.margins.bottom)
+      .append('g')
+        .attr('transform', 'translate(' + $scope.svgDimensions.margins.left + ', ' + $scope.svgDimensions.margins.top + ')')
+
+    parseDate = d3.time.format('%Y-%m-%d')
+    commitData = $scope.groupByDate($scope.commits, parseDate)
 
     x = d3.time.scale()
       .domain(d3.extent(commitData, (d) -> parseDate.parse(d.key)))
-      .range([0, dimensions.width])
+      .range([0, $scope.svgDimensions.width])
 
     xAxis = d3.svg.axis()
       .scale(x)
@@ -50,7 +52,7 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
 
     y = d3.scale.linear()
       .domain([0, d3.max(commitData, (d) -> d.values.length)])
-      .range([dimensions.height, 0])
+      .range([$scope.svgDimensions.height, 0])
 
     yAxis = d3.svg.axis()
       .scale(y)
@@ -124,7 +126,7 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
 
     svg.append('g')
       .attr('class', 'axis')
-      .attr('transform', 'translate(0, ' + (dimensions.height + 10) + ')')
+      .attr('transform', 'translate(0, ' + ($scope.svgDimensions.height + 10) + ')')
       .call(xAxis)
 
     svg.append('g')
@@ -133,41 +135,24 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
       .call(yAxis)
 
   $scope.visualizeDayOfWeekDistribution = ->
-    dimensions =
-      width: 600
-      height: 300
+    $scope.svgDimensions.pie = radius: 150
 
-      margins:
-        top: 10
-        right: 10
-        bottom: 40
-        left: 50
-
-      pie:
-        radius: 150
-
-    parseDate = d3.time.format('%A')
     color = d3.scale.category20c()
 
-    commitData = d3.nest()
-      .key((d) ->
-        parseDate(new Date(d.date))
-      )
-      .sortKeys(d3.ascending)
-      .entries($scope.commits)
+    commitData = $scope.groupByDate($scope.commits, d3.time.format('%A'))
 
     pie = d3.layout.pie().value((d) -> d.values.length)
 
     svg = d3.select('.d3.dow')
       .append('svg:svg')
         .data([commitData])
-        .attr('width', dimensions.width + dimensions.margins.left + dimensions.margins.right)
-        .attr('height', dimensions.height + dimensions.margins.top + dimensions.margins.bottom)
+        .attr('width', $scope.svgDimensions.width + $scope.svgDimensions.margins.left + $scope.svgDimensions.margins.right)
+        .attr('height', $scope.svgDimensions.height + $scope.svgDimensions.margins.top + $scope.svgDimensions.margins.bottom)
       .append('g')
-        .attr('transform', 'translate(' + dimensions.margins.left + ', ' + dimensions.margins.top + ')')
+        .attr('transform', 'translate(' + $scope.svgDimensions.margins.left + ', ' + $scope.svgDimensions.margins.top + ')')
 
     arc = d3.svg.arc()
-        .outerRadius(dimensions.pie.radius)
+        .outerRadius($scope.svgDimensions.pie.radius)
         .innerRadius(0)
 
     slices = svg.selectAll('g.slice').data(pie).enter()
@@ -181,30 +166,20 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
 
     slices.append('text')
       .attr('transform', (d, i) ->
-        'translate(' + arc.outerRadius(dimensions.pie.radius + 25).centroid(d) + ')'
+        'translate(' + arc.outerRadius($scope.svgDimensions.pie.radius + 25).centroid(d) + ')'
       )
       .attr('text-anchor', 'middle')
       .text((d) -> d.data.key)
 
   $scope.visualizeAuthors = ->
-    dimensions =
-      width: 600
-      height: 300
-
-      margins:
-        top: 10
-        right: 10
-        bottom: 40
-        left: 50
-
     parseDate = d3.time.format('%Y-%m-%d')
 
     svg = d3.select('.d3.authors')
       .append('svg:svg')
-        .attr('width', dimensions.width + dimensions.margins.left + dimensions.margins.right)
-        .attr('height', dimensions.height + dimensions.margins.top + dimensions.margins.bottom)
+        .attr('width', $scope.svgDimensions.width + $scope.svgDimensions.margins.left + $scope.svgDimensions.margins.right)
+        .attr('height', $scope.svgDimensions.height + $scope.svgDimensions.margins.top + $scope.svgDimensions.margins.bottom)
       .append('g')
-        .attr('transform', 'translate(' + dimensions.margins.left + ', ' + dimensions.margins.top + ')')
+        .attr('transform', 'translate(' + $scope.svgDimensions.margins.left + ', ' + $scope.svgDimensions.margins.top + ')')
 
     commitData = d3.nest()
       .key((d) ->
@@ -221,7 +196,7 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
 
     x = d3.scale.linear()
         .domain(d3.extent(commitData, (d) -> d.values.length))
-        .range([0, dimensions.width - 150])
+        .range([0, $scope.svgDimensions.width - 150])
 
     xAxis = d3.svg.axis()
       .scale(x)
@@ -229,7 +204,7 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
 
     y = d3.scale.ordinal()
         .domain(commitData.map((d) -> d.key))
-        .rangeRoundBands([dimensions.margins.top, dimensions.height])
+        .rangeRoundBands([$scope.svgDimensions.margins.top, $scope.svgDimensions.height])
 
     yAxis = d3.svg.axis()
       .scale(y)
@@ -241,7 +216,7 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
 
     bars.append('rect')
       .attr('x', (d3.max(commitData, (d) -> d.key.length) * 3) + 10)
-      .attr('y', (d, i) -> y(d.key) + 20 + dimensions.margins.top)
+      .attr('y', (d, i) -> y(d.key) + 20 + $scope.svgDimensions.margins.top)
       .attr('width', (d) -> x(d.values.length))
       .attr('height', '15px')
       .attr('fill', 'steelblue')
@@ -251,12 +226,12 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
         d.values.length
       )
       .attr('text-anchor', 'start')
-      .attr('x', (d) -> x(d.values.length) + dimensions.margins.left + 15)
-      .attr('y', (d) -> y(d.key) + 20 + dimensions.margins.top + 13)
+      .attr('x', (d) -> x(d.values.length) + $scope.svgDimensions.margins.left + 15)
+      .attr('y', (d) -> y(d.key) + 20 + $scope.svgDimensions.margins.top + 13)
 
     svg.append('g')
       .attr('class', 'axis')
-      .attr('transform', 'translate(' + ((d3.max(commitData, (d) -> d.key.length) * 3) + 10) + ',' + (dimensions.height + 10) + ')')
+      .attr('transform', 'translate(' + ((d3.max(commitData, (d) -> d.key.length) * 3) + 10) + ',' + ($scope.svgDimensions.height + 10) + ')')
       .call(xAxis)
 
     svg.append('g')
