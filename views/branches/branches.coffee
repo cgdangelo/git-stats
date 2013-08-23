@@ -70,37 +70,6 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
     blobs = svg.selectAll('path').data(commitData).enter()
       .append('g')
         .attr('class', 'blob')
-        .on('mouseover', (d) ->
-          svg.selectAll('circle, path').transition()
-            .duration(300)
-            .style('opacity', '0.25')
-
-          d3.select(this).select('text').transition()
-            .duration(300)
-            .style('opacity', '1')
-
-          d3.select(this).select('circle').transition()
-            .duration(300)
-            .attr('opacity', '1')
-            .attr('r', 10)
-            .attr('fill', 'steelblue')
-            .attr('stroke', 'black')
-        )
-        .on('mouseout', ->
-          svg.selectAll('circle, path').transition()
-            .duration(300)
-            .style('opacity', '1')
-
-          d3.select(this).select('text').transition()
-            .duration(300)
-            .style('opacity', '0')
-
-          d3.select(this).select('circle').transition()
-            .duration(300)
-            .attr('r', 5)
-            .attr('fill', 'white')
-            .attr('stroke', 'black')
-        )
 
     blobs.append('circle')
       .attr('fill', 'white')
@@ -108,9 +77,30 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
       .attr('r', 5)
       .attr('cx', (d) -> x(parseDate.parse(d.key)))
       .attr('cy', (d) -> y(d.values.length))
+      .on('mouseover', ->
+        d3.select(@).transition(300)
+          .attr('r', 12)
+          .attr('fill', 'steelblue')
+
+        d3.select(this.nextSibling)
+          .style('display', 'block')
+          .transition(300)
+            .style('opacity', 1)
+      )
+      .on('mouseout', ->
+        d3.select(@).transition(300)
+          .attr('r', 5)
+          .attr('fill', 'white')
+
+        d3.select(this.nextSibling)
+          .transition(300)
+            .style('opacity', 0)
+            .style('display', 'block')
+      )
 
     blobs.append('text')
       .text((d) -> d.values.length)
+      .style('display', 'none')
       .style('opacity', '0')
       .attr('class', 'tooltip')
       .attr('text-anchor', 'middle')
