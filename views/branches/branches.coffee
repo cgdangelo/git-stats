@@ -234,8 +234,34 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
     svg = d3.select('.d3.tod')
       .append('svg:svg')
         .attr('width', $scope.svgDimensions.width + $scope.svgDimensions.margins.left + $scope.svgDimensions.margins.right)
-        .attr('height', $scope.svgDimensions.height + $scope.svgDimensions.margins.top + $scope.svgDimensions.margins.bottom)
+        .attr('height', $scope.svgDimensions.height + 300 + $scope.svgDimensions.margins.top + $scope.svgDimensions.margins.bottom)
       .append('g')
         .attr('transform', 'translate(' + $scope.svgDimensions.margins.left + ', ' + $scope.svgDimensions.margins.top + ')')
 
-    commitData = $scope.groupByDate($scope.commits, d3.time.format('%H'))
+    commitData = $scope.groupByDate($scope.commits, d3.time.format('%I %p'))
+
+    x = d3.scale.linear()
+      .domain([0, d3.max(commitData, (d) -> d.values.length)])
+      .range([0, $scope.svgDimensions.height + 300 + $scope.svgDimensions.margins.bottom])
+
+    xAxis = d3.svg.axis()
+      .scale(x)
+      .orient('bottom')
+
+    svg.append('g')
+      .attr('class', 'axis')
+      .attr('transform', 'translate(0,' + ($scope.svgDimensions.height + 310) + ')')
+      .call(xAxis)
+
+    y = d3.scale.ordinal()
+        .domain(commitData.map((d) -> d.key))
+        .rangeRoundBands([0, $scope.svgDimensions.width])
+
+    yAxis = d3.svg.axis()
+      .scale(y)
+      .orient('left')
+
+    svg.append('g')
+      .attr('class', 'axis')
+      .attr('transform', 'translate(-10,0)')
+      .call(yAxis)
