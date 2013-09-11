@@ -11,6 +11,7 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
       $scope.commits = data
       $scope.visualizeCommitsDaily()
       $scope.visualizeDayOfWeekDistribution()
+      $scope.visualizeTimeOfDayDistribution()
       $scope.visualizeAuthors()
 
   $scope.svgDimensions =
@@ -228,3 +229,13 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
       .attr('class', 'axis')
       .attr('transform', 'translate(' + (d3.max(commitData, (d) -> d.key.length) * 3) + ',0)')
       .call(yAxis)
+
+  $scope.visualizeTimeOfDayDistribution = ->
+    svg = d3.select('.d3.tod')
+      .append('svg:svg')
+        .attr('width', $scope.svgDimensions.width + $scope.svgDimensions.margins.left + $scope.svgDimensions.margins.right)
+        .attr('height', $scope.svgDimensions.height + $scope.svgDimensions.margins.top + $scope.svgDimensions.margins.bottom)
+      .append('g')
+        .attr('transform', 'translate(' + $scope.svgDimensions.margins.left + ', ' + $scope.svgDimensions.margins.top + ')')
+
+    commitData = $scope.groupByDate($scope.commits, d3.time.format('%H'))
