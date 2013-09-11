@@ -238,7 +238,7 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
       .append('g')
         .attr('transform', 'translate(' + $scope.svgDimensions.margins.left + ', ' + $scope.svgDimensions.margins.top + ')')
 
-    commitData = $scope.groupByDate($scope.commits, d3.time.format('%I %p'))
+    commitData = $scope.groupByDate($scope.commits, d3.time.format('%H'))
 
     x = d3.scale.linear()
       .domain([0, d3.max(commitData, (d) -> d.values.length)])
@@ -260,6 +260,27 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
     yAxis = d3.svg.axis()
       .scale(y)
       .orient('left')
+
+    bars = svg.selectAll('g.bar').data(commitData).enter()
+      .append('g')
+        .attr('class', 'bar')
+
+    bars.append('rect')
+      .attr('x', 0)
+      .attr('y', (d) -> y(d.key) + $scope.svgDimensions.margins.top - 3.5)
+      .attr('height', '15px')
+      .attr('width', (d) -> x(d.values.length))
+      .attr('fill', 'steelblue')
+
+    bars.append('text')
+      .attr('x', (d) -> x(d.values.length) + 10)
+      .attr('y', (d) -> y(d.key) + $scope.svgDimensions.margins.top + 10)
+      .text((d) -> d.values.length)
+
+    svg.selectAll('g.bar').data(commitData).enter()
+      .append('text')
+        .attr('text-anchor', 'middle')
+        .text((d) -> d.values.length)
 
     svg.append('g')
       .attr('class', 'axis')
