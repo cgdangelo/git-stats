@@ -242,7 +242,7 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
 
     x = d3.scale.linear()
       .domain([0, d3.max(commitData, (d) -> d.values.length)])
-      .range([0, $scope.svgDimensions.height + 300 + $scope.svgDimensions.margins.bottom])
+      .range([0, $scope.svgDimensions.width - $scope.svgDimensions.margins.left - $scope.svgDimensions.margins.right])
 
     xAxis = d3.svg.axis()
       .scale(x)
@@ -255,7 +255,7 @@ BranchInfoCtrl = ($scope, $http, $routeParams) ->
 
     y = d3.scale.ordinal()
         .domain(commitData.map((d) -> d.key))
-        .rangeRoundBands([0, $scope.svgDimensions.width])
+        .rangeRoundBands([0, $scope.svgDimensions.height + 300])
 
     yAxis = d3.svg.axis()
       .scale(y)
